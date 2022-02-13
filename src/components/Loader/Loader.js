@@ -20,13 +20,13 @@ const setParams = ({ q, page }) =>
 // & orientation=horizontal
 // & per_page=12
 
-export const Loader = (q, page = 1) => {
+export default function Loader(q, page = 1) {
   setParams({ q, page });
   return axios
     .get('api/')
     .then(res => {
-      console.log('totalHits: ', res.data.totalHits);
-      console.log('gallery: ', res.data.hits);
+      // console.log('totalHits: ', res.data.totalHits);
+      // console.log('gallery: ', res.data.hits);
       if (!res.data.hits.length) {
         throw new Error('No more data!');
       }
@@ -38,4 +38,4 @@ export const Loader = (q, page = 1) => {
     .catch(err => {
       throw err;
     });
-};
+}

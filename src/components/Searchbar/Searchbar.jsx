@@ -12,7 +12,7 @@ export default function Searchbar ({onSubmit, lastSearch}) {
     // const { input } = this.state;
     e.preventDefault();
     if (!input || input === lastSearch) return;
-    console.log("handleSubmit: ", input);
+    // console.log("handleSubmit: ", input);
     onSubmit(input);
   }
 

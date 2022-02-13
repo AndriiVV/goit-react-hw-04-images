@@ -3,10 +3,10 @@ import { BallTriangle } from "react-loader-spinner";
 import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
 import Button from "./Button/Button";
-import { Loader } from "./Loader/Loader";
+import Loader from "./Loader/Loader";
 
 
-const App =() => {
+export default function App() {
 
   const [gallery, setGallery] = useState([]);
   const [page, setPage] = useState(null);
@@ -20,7 +20,7 @@ const App =() => {
   // const prevGallery = usePrevious(gallery);
 
   const onSubmit = (q) => {
-    console.log("onSubmit()... ", q);
+    // console.log("onSubmit()... ", q);
     setGallery([]);
     setPage(1);
     setTotalPages(null);
@@ -30,20 +30,22 @@ const App =() => {
   }
 
   const loadMore = () => { 
-    console.log("loadMore()... ", page);
+    // console.log("loadMore()... ", page);
     if (!error && page < totalPages) {
       setPage(prev => prev + 1);
     }
   }
 
   const setupGallery = () => { 
-    console.log("setupGallery()... ", gallery);
+    // console.log("setupGallery()... ", gallery);
     setIsLoading(true);
 
     Loader(input, page)
       .then(({ gallery, totalPages }) => {
-        setGallery(prev => [ ...prev, ...gallery ]);
+        // console.log("Loader(setTotalPages)... ", totalPages);
         setTotalPages(totalPages);
+        // console.log("Loader(setGallery)... ", gallery);
+        setGallery(prev => [...prev, ...gallery]);
       })
       .catch((err) => {
         setError(err.message);
@@ -55,24 +57,13 @@ const App =() => {
   }
 
   useEffect(() => {
-        
     if (!input) return;
 
-    if (prevInput !== input) { 
-      console.log("USE_EFFECT(new input)... ", input);
+    // if (prevInput !== input) { 
+      // console.log("USE_EFFECT(new input detected)... ", input);
       setupGallery();
-    }
-  }, [input]);
-  
-  useEffect(() => {
-
-    if (!input) return;
-
-    if (prevPage !== page) { 
-      console.log("USE_EFFECT(new page)... ", page);
-      setupGallery();
-    }
-  }, [page]);
+    // }
+  }, [input, page]);
   
     // console.log("render()... ", this.state.gallery);
     // const { gallery, page, totalPages, input, error, isLoading } = state;
@@ -110,5 +101,3 @@ const usePrevious = (value) => {
   return ref.current;
 }
 
-
-export default App;
