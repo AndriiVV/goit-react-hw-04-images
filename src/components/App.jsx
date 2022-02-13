@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BallTriangle } from "react-loader-spinner";
 import Searchbar from "./Searchbar/Searchbar";
 import ImageGallery from "./ImageGallery/ImageGallery";
@@ -6,61 +6,82 @@ import Button from "./Button/Button";
 import { Loader } from "./Loader/Loader";
 
 
-class App extends Component {
+const App =() => {
 
-  state = {
-    gallery: [],
-    page: null,
-    totalPages: null,
-    input: "",
-    error: null,
-    isLoading: false,
-  };
+  const [gallery, setGallery] = useState([]);
+  const [page, setPage] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  onSubmit = (q) => {
-    // console.log("onSubmit()... ", q, " => ", this.state);
-    this.setState({ input: q, page: 1, gallery: [], totalPages: null, error: null, });
+  const prevPage = usePrevious(page);
+  const prevInput = usePrevious(input);
+  // const prevGallery = usePrevious(gallery);
+
+  const onSubmit = (q) => {
+    console.log("onSubmit()... ", q);
+    setGallery([]);
+    setPage(1);
+    setTotalPages(null);
+    setInput(q);
+    setError(null);
+    setIsLoading(false);
   }
 
-  loadMore = () => { 
-    // console.log("loadMore()... ", this.state.error);
-    if (!this.state.error && this.state.page < this.state.totalPages) {
-      this.setState((prev) => ({page: prev.page + 1}));
+  const loadMore = () => { 
+    console.log("loadMore()... ", page);
+    if (!error && page < totalPages) {
+      setPage(prev => prev + 1);
     }
   }
 
-  setGallery = () => { 
-    this.setState({isLoading: true});
-    const { page, input } = this.state;
+  const setupGallery = () => { 
+    console.log("setupGallery()... ", gallery);
+    setIsLoading(true);
 
     Loader(input, page)
-      .then(({gallery, totalPages}) => this.setState((prev) => ({
-        gallery: [...prev.gallery, ...gallery], totalPages,
-      })))
-      .catch((err) => this.setState({ error: err.message }))
-      .finally(() => this.setState({ isLoading: false }));
+      .then(({ gallery, totalPages }) => {
+        setGallery(prev => [ ...prev, ...gallery ]);
+        setTotalPages(totalPages);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
   }
 
-  componentDidUpdate(prevProps, prevState) { 
-    const { page, input } = this.state;
-    // console.log("componentDidUpdate()... ", prevState.page, " => ", this.state.page);
-    // console.log("componentDidUpdate()... ", prevState.input, " => ", this.state.input);
-    // if (input === "") return;
-    if (prevState.page !== page || prevState.input !== input) { 
-      // console.log("New page or input detected!");
-      this.setGallery();
+  useEffect(() => {
+        
+    if (!input) return;
+
+    if (prevInput !== input) { 
+      console.log("USE_EFFECT(new input)... ", input);
+      setupGallery();
     }
-  }
+  }, [input]);
+  
+  useEffect(() => {
 
-  render() { 
+    if (!input) return;
+
+    if (prevPage !== page) { 
+      console.log("USE_EFFECT(new page)... ", page);
+      setupGallery();
+    }
+  }, [page]);
+  
     // console.log("render()... ", this.state.gallery);
-    const { gallery, page, totalPages, input, error, isLoading } = this.state;
+    // const { gallery, page, totalPages, input, error, isLoading } = state;
     const isButton = !!gallery.length && page < totalPages;
     // console.log("render(isButton)... ", isButton);
+    
     return (
       <div className="App">
-        <Searchbar onSubmit={this.onSubmit} lastSearch={input} />
+        <Searchbar onSubmit={onSubmit} lastSearch={input} />
         {error ? (<p> No images found. Please use other criteria </p>) : (
           <>
             <ImageGallery gallery={gallery}/>
@@ -68,15 +89,26 @@ class App extends Component {
               <BallTriangle heigth="50" width="50" color="red" />
             ) : (
               <>  
-                {isButton && <Button loadMore={this.loadMore} />}  
+                {isButton && <Button loadMore={loadMore} />}  
               </>
             )}
           </>
         ) }
       </div>
     );
-  }
+  
 
 };
+
+const usePrevious = (value) => { 
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+
 
 export default App;

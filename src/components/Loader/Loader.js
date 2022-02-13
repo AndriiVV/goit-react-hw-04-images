@@ -25,7 +25,8 @@ export const Loader = (q, page = 1) => {
   return axios
     .get('api/')
     .then(res => {
-      // console.log('totalHits: ', res.data.totalHits);
+      console.log('totalHits: ', res.data.totalHits);
+      console.log('gallery: ', res.data.hits);
       if (!res.data.hits.length) {
         throw new Error('No more data!');
       }
