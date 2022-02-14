@@ -14,8 +14,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const prevPage = usePrevious(page);
-  const prevInput = usePrevious(input);
+  // const prevPage = usePrevious(page);
+  // const prevInput = usePrevious(input);
   // const prevGallery = usePrevious(gallery);
 
   const onSubmit = (q) => {
@@ -36,7 +36,7 @@ export default function App() {
   }
 
   const setupGallery = () => { 
-    // console.log("setupGallery()... ", gallery);
+    
     setIsLoading(true);
 
     Loader(input, page)
@@ -56,12 +56,11 @@ export default function App() {
   }
 
   useEffect(() => {
+      // console.log("USE_EFFECT(new input detected)... ", input);    
     if (!input) return;
 
-    // if (prevInput !== input) { 
-      // console.log("USE_EFFECT(new input detected)... ", input);
-      setupGallery();
-    // }
+    setupGallery();
+
   }, [input, page]);
   
     // console.log("render()... ", this.state.gallery);
